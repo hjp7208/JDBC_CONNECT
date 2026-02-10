@@ -22,8 +22,8 @@ public class UsersDAOImpl implements Users {
 
         try (Connection conn = DBUtil.getConnection()) {
 
-            String sql = "insert into person "
-                    + "(userId, userPw, userName, userEmail, phone1, phone2, age, "
+            String sql = "INSERT INTO person "
+                    + "(user_id, user_pw, user_name, user_email, phone1, phone2, age, "
                     + "address1, address2) values(?,?,?,?,?,?,?,?,?)";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -62,17 +62,17 @@ public class UsersDAOImpl implements Users {
             while (rs.next()) {
                 list.add(UserVO.builder()
                         .id(rs.getLong("id"))
-                        .userId(rs.getString("userId"))
-                        .userPw(rs.getString("userPw"))
-                        .userName(rs.getString("userName"))
-                        .userEmail(rs.getString("userEmail"))
+                        .userId(rs.getString("user_id"))
+                        .userPw(rs.getString("user_pw"))
+                        .userName(rs.getString("user_name"))
+                        .userEmail(rs.getString("user_email"))
                         .phone1(rs.getString("phone1"))
                         .phone2(rs.getString("phone2"))
                         .age(rs.getByte("age"))
                         .address1(rs.getString("address1"))
                         .address2(rs.getString("address2"))
-                        .regDate(rs.getTimestamp("regDate"))
-                        .modDate(rs.getTimestamp("modifyDate"))
+                        .regDate(rs.getTimestamp("reg_date"))
+                        .modDate(rs.getTimestamp("mod_date"))
                         .build());
             }
 
@@ -107,9 +107,9 @@ public class UsersDAOImpl implements Users {
         int result = 0;
         try (Connection conn = DBUtil.getConnection()) {
 
-            String sql = "update person set userId=?, userPw=?, userName=?," +
-                    "userEmail=?, phone1=?, phone2=?, age=?, address1=?, address2=?" +
-                    ", modifyDate=? where id = ?";
+            String sql = "update person set user_id=?, user_pw=?, user_name=?," +
+                    "user_email=?, phone1=?, phone2=?, age=?, address1=?, address2=?" +
+                    ", mod_date=? where id = ?";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, after.getUserId());
@@ -136,34 +136,34 @@ public class UsersDAOImpl implements Users {
     }
 
     @Override
-    public List<UserVO> userSearch(String userId, String userName) {
-        // sql select , where userId, userName
-        List<UserVO> list = new ArrayList<>();
-
+    public Optional<UserVO> logIn(String userId, String userPw) {
+        // sql select , where userId, userPw
+        // login 처리를 위한 값으로 진행
+        Optional<UserVO> user = null;
         try (Connection conn = DBUtil.getConnection()) {
 
             // SQL
-            String sql = "select * from person where userId=? or userName=?";
+            String sql = "select * from person where user_id=? or user_pw=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userId);
-            pstmt.setString(2, userName);
+            pstmt.setString(2, userPw);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                list.add(UserVO.builder()
-                        .id(rs.getLong("id"))
-                        .userId(rs.getString("userId"))
-                        .userPw(rs.getString("userPw"))
-                        .userName(rs.getString("userName"))
-                        .userEmail(rs.getString("userEmail"))
-                        .phone1(rs.getString("phone1"))
-                        .phone2(rs.getString("phone2"))
-                        .age(rs.getByte("age"))
-                        .address1(rs.getString("address1"))
-                        .address2(rs.getString("address2"))
-                        .regDate(rs.getTimestamp("regDate"))
-                        .modDate(rs.getTimestamp("modifyDate"))
-                        .build());
+                user = Optional.of(UserVO.builder()
+                            .id(rs.getLong("id"))
+                            .userId(rs.getString("user_Id"))
+                            .userPw(rs.getString("user_pw"))
+                            .userName(rs.getString("user_name"))
+                            .userEmail(rs.getString("user_email"))
+                            .phone1(rs.getString("phone1"))
+                            .phone2(rs.getString("phone2"))
+                            .age(rs.getByte("age"))
+                            .address1(rs.getString("address1"))
+                            .address2(rs.getString("address2"))
+                            .regDate(rs.getTimestamp("reg_date"))
+                            .modDate(rs.getTimestamp("mod_date"))
+                            .build());
             }
 
         } catch (SQLException e) {
@@ -171,18 +171,17 @@ public class UsersDAOImpl implements Users {
             System.out.println(e.getMessage());
         }
 
-        return list;
+        return user;
     }
 
     @Override
     public Optional<UserVO> userSearch(String userEmail) {
         // sql select, where email
         Optional<UserVO> result = null;
-
         try (Connection conn = DBUtil.getConnection()) {
 
             // SQL
-            String sql = "select * from person where userEmail=?";
+            String sql = "select * from person where user_email=?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, userEmail);
             ResultSet rs = pstmt.executeQuery();
@@ -190,17 +189,17 @@ public class UsersDAOImpl implements Users {
             if (rs.next()) {
                 result = Optional.of(UserVO.builder()
                         .id(rs.getLong("id"))
-                        .userId(rs.getString("userId"))
-                        .userPw(rs.getString("userPw"))
-                        .userName(rs.getString("userName"))
-                        .userEmail(rs.getString("userEmail"))
+                        .userId(rs.getString("user_id"))
+                        .userPw(rs.getString("user_pw"))
+                        .userName(rs.getString("user_name"))
+                        .userEmail(rs.getString("user_email"))
                         .phone1(rs.getString("phone1"))
                         .phone2(rs.getString("phone2"))
                         .age(rs.getByte("age"))
                         .address1(rs.getString("address1"))
                         .address2(rs.getString("address2"))
-                        .regDate(rs.getTimestamp("regDate"))
-                        .modDate(rs.getTimestamp("modifyDate"))
+                        .regDate(rs.getTimestamp("reg_date"))
+                        .modDate(rs.getTimestamp("mod_date"))
                         .build());
             }
 

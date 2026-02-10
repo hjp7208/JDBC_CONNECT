@@ -62,4 +62,11 @@ public class UsermanageImpl implements Usermanage {
 
     }
 
+    @Override
+    public UserDTO logIn(String userId, String userPw) {
+        return UserDTO.toUserDTO(userRepository.logIn(userId, userPw).get());
+    }
+
+    
+
 }

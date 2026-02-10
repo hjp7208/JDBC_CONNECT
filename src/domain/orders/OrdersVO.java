@@ -1,6 +1,7 @@
 package domain.orders;
 
-import java.security.Timestamp;
+
+import java.sql.Timestamp;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
