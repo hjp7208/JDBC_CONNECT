@@ -9,16 +9,26 @@ import domain.orders.OrdersVO;
 import domain.users.UserVO;
 import dto.OrderDTO;
 import dto.UserDTO;
+import repository.OrderDAOImplMariaDB;
 import repository.Orders;
 import repository.OrdersDAOImpl;
+import repository.OrdersDAOImplOracle;
+import repository.UserDAOImplOracle;
 import repository.Users;
 import repository.UsersDAOImpl;
+import repository.UsersDAOImplMaridDB;
 
 public class OrdermanagImpl implements Ordermanage {
 
     // 서비스 계층에 작업을 위해 필요한 객체들...
-    Users userRepository = new UsersDAOImpl();
-    Orders orderRepository = new OrdersDAOImpl();
+    // Users usersRepository = new UsersDAOImpl();
+    // Orders ordersRepository = new OrdersDAOImpl();
+
+    // Users usersRepository = new UserDAOImplOracle();
+    // Orders ordersRepository = new OrdersDAOImplOracle();
+
+    Users usersRepository = new UsersDAOImplMaridDB();
+    Orders ordersRepository = new OrderDAOImplMariaDB();
 
     @Override
     public boolean createOrder(OrderDTO order, UserDTO userDTO) {
@@ -30,19 +40,19 @@ public class OrdermanagImpl implements Ordermanage {
                 .userId(userDTO.getUserId())
                 .build();
 
-        return orderRepository.insertOrder(newOrder);
+        return ordersRepository.insertOrder(newOrder);
     }
 
     @Override
     public boolean deleteOrder(OrderDTO order, UserDTO userDTO) {
         // 삭제 작업은 Orders 테이블의 id로 삭제를 진행.
         // 사용자 확인 작업...
-        Optional<UserVO> userInfo = userRepository.userSearch(userDTO.getUserEmail());
+        Optional<UserVO> userInfo = usersRepository.userSearch(userDTO.getUserEmail());
         if (userInfo.isPresent()) {
             // userDTO.getUserPw() 는 삭제를 위해 입력한 패스워드를 저장.
             // userInfo.get().getUSerPw() 는 DB에 있는 사용자의 패스워드
             if (userDTO.getUserPw().equals(userInfo.get().getUserPw())) {
-                return orderRepository.deleteOrder(order.getId());
+                return ordersRepository.deleteOrder(order.getId());
             } else
                 return false;
         } else
@@ -55,7 +65,7 @@ public class OrdermanagImpl implements Ordermanage {
         // 사용자가 주문한 주문 리스트 출력
         // 1. 사용자 정보 : userId를 불러서.
         // 2. orderRepository.ordersSearch(userId)
-        List<OrdersVO> ordersVOList = orderRepository.ordersSearch(dto.getUserId());
+        List<OrdersVO> ordersVOList = ordersRepository.ordersSearch(dto.getUserId());
         List<OrderDTO> ordersList = new ArrayList<>();
         SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (OrdersVO vo : ordersVOList) {
@@ -92,7 +102,7 @@ public class OrdermanagImpl implements Ordermanage {
     @Override
     public boolean modifyOrder(OrderDTO order, UserDTO userDTO) {
         // 회원정보와 order 정보를 통한 수정 처리...
-        Optional<UserVO> user = userRepository.userSearch(userDTO.getUserEmail());
+        Optional<UserVO> user = usersRepository.userSearch(userDTO.getUserEmail());
 
         if (user.isPresent()) {
             // OrderDTO -> OrderVO
@@ -103,7 +113,7 @@ public class OrdermanagImpl implements Ordermanage {
                     .orderNum(order.getOrderNum())
                     .price(order.getPrice())
                     .build();
-            return orderRepository.modifyOrder(orderVO);
+            return ordersRepository.modifyOrder(orderVO);
         }
         return false;
     }

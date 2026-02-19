@@ -1,4 +1,4 @@
-package dbutil;
+package dbutil.test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,7 +12,7 @@ public class DBConnectionTest {
         // 2. DB 접속 테스트
         try{
             // 드라이버 로드
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("org.mariadb.jdbc.Driver");
             System.out.println("드라이버 로드 성공");
 
             // 데이터베이스 접속 정보를 담은 Connection 객체 생성
@@ -22,7 +22,7 @@ public class DBConnectionTest {
             // :3306 -> 포트 번호 (mysql은 포트번호 3306을 기본 포트로 사용)
             // /jdbc -> DB 이름
             conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/jdbc",
+                "jdbc:mariadb://localhost:4306/jdbc",   // DB url
                 "jdbcuser",
                 "jdbcuser"
             );
@@ -30,6 +30,7 @@ public class DBConnectionTest {
             System.out.println("데이터베이스 접속 성공");
         } catch(ClassNotFoundException e) {
             System.out.println("드라이버 로드 실패");
+            e.printStackTrace();
         } catch(SQLException e) {
             System.out.println("SQL 에러 발생(DB 접속 실패)");
         } finally {

@@ -2,22 +2,22 @@ package service.usermanage;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import domain.users.UserVO;
 import dto.UserDTO;
+import repository.UserDAOImplOracle;
 import repository.Users;
-import repository.UsersDAOImpl;
+import repository.UsersDAOImplMaridDB;
 
 public class UsermanageImpl implements Usermanage {
-
     // DB 작업을 할 수 있는 객체를 호출 작업 진행...
     // 인터페이스를 통한 객체 호출...
-    Users userRepository = new UsersDAOImpl();
-
+    // Users usersRepository = new UsersDAOImpl();
+    // Users usersRepository = new UserDAOImplOracle();
+    Users usersRepository = new UsersDAOImplMaridDB();
     @Override
     public List<UserDTO> searchAll() {
         List<UserDTO> userDTOList = new ArrayList<>();
-        List<UserVO> userVOList = userRepository.userAll();
+        List<UserVO> userVOList = usersRepository.userAll();
         for (UserVO vo : userVOList) {
             UserDTO dto = UserDTO.toUserDTO(vo);
             userDTOList.add(dto);
@@ -27,7 +27,7 @@ public class UsermanageImpl implements Usermanage {
 
     @Override
     public UserDTO searchOne(String userEmail) {
-        UserVO vo = userRepository.userSearch(userEmail).get();
+        UserVO vo = usersRepository.userSearch(userEmail).get();
         UserDTO dto = UserDTO.toUserDTO(vo);
         return dto;
     }
@@ -37,7 +37,7 @@ public class UsermanageImpl implements Usermanage {
         // UserDTO -> UserVO
         UserVO userVO = UserDTO.toUserVO(userDTO);
 
-        if (userRepository.userDel(userVO) != 0)
+        if (usersRepository.userDel(userVO) != 0)
             return true;
         else
             return false;
@@ -46,7 +46,7 @@ public class UsermanageImpl implements Usermanage {
     @Override
     public boolean userModify(UserDTO userDTO) {
         UserVO userVO = UserDTO.toUserVO(userDTO);
-        if (userRepository.userMod(userVO) != 0)
+        if (usersRepository.userMod(userVO) != 0)
             return true;
         else
             return false;
@@ -55,7 +55,7 @@ public class UsermanageImpl implements Usermanage {
     @Override
     public boolean userRegister(UserDTO userDTO) {
         UserVO userVO = UserDTO.toUserVO(userDTO);
-        if (userRepository.userAdd(userVO) != 0)
+        if (usersRepository.userAdd(userVO) != 0)
             return true;
         else
             return false;
@@ -64,9 +64,7 @@ public class UsermanageImpl implements Usermanage {
 
     @Override
     public UserDTO logIn(String userId, String userPw) {
-        return UserDTO.toUserDTO(userRepository.logIn(userId, userPw).get());
+        return UserDTO.toUserDTO(usersRepository.logIn(userId, userPw).get());
     }
-
-    
 
 }

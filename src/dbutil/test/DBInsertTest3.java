@@ -1,26 +1,29 @@
-package dbutil;
+package dbutil.test;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
-import domain.PersonRe;
+import domain.PersonVO;
 
-public class DBInsertTest5 {
+public class DBInsertTest3 {
     public static void main(String[] args) {
         // DB연결을 위한 값을 생성
         String url = "jdbc:mysql://localhost:3306/jdbc";
         String user = "jdbcuser";
         String password = "jdbcuser";
 
-        // Record 객체의 역할은 값을 변경 없이 받거나 전달
-        // Record 객체는 setter가 없음. 변경 불가(immutable).
-        PersonRe vo = new PersonRe(0, "testuser10", "testuserPw", "testuserName",
-                        "testuser10@test.com", "032", "989-2223",
-                        (byte)34, "인천", "어딘가", null, null
+        // INSERT에 사용할 데이터 생성
+        PersonVO vo = new PersonVO("user3",
+                                   "userpw3",
+                                   "user3",
+                                   "user3@naver.com",
+                                   "02",
+                                   "123-4567",
+                                   (byte)28,
+                                    "서울 강북구 수유동",
+                                    "어딘가"
         );
-        // 변경 불가.
-        System.out.println(vo.id());    // vo.id() - getter 메소드
 
         // DB 작업(PreparedStatement)
         // 1. Connection 객체 생성
@@ -32,15 +35,15 @@ public class DBInsertTest5 {
             // 3. PreparedStatement 객체 생성
             PreparedStatement pstmt = conn.prepareStatement(sql);
             // 4. SQL에 ?에 대한 데이터 추가
-            pstmt.setString(1, vo.userId());
-            pstmt.setString(2, vo.userPw());
-            pstmt.setString(3, vo.userName());
-            pstmt.setString(4, vo.userEmail());
-            pstmt.setString(5, vo.phone1());
-            pstmt.setString(6, vo.phone2());
-            pstmt.setByte(7, vo.age());
-            pstmt.setString(8, vo.address1());
-            pstmt.setString(9, vo.address2());
+            pstmt.setString(1, vo.getUserId());
+            pstmt.setString(2, vo.getUserPw());
+            pstmt.setString(3, vo.getUserName());
+            pstmt.setString(4, vo.getUserEmail());
+            pstmt.setString(5, vo.getPhone1());
+            pstmt.setString(6, vo.getPhone2());
+            pstmt.setByte(7, vo.getAge());
+            pstmt.setString(8, vo.getAddress1());
+            pstmt.setString(9, vo.getAddress2());
             System.out.println(pstmt);
 
             // 5. SQL 실행
@@ -54,5 +57,6 @@ public class DBInsertTest5 {
             System.out.println("DB 작업 실패");
             e.printStackTrace();
         }
+        
     }
 }

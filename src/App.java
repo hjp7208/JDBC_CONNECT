@@ -134,7 +134,7 @@ public class App {
             String userId = scanner.nextLine();
             System.out.print("사용자 PW를 입력하세요: ");
             String userPw = scanner.nextLine();
-            System.out.println("로그인 하시겠습니까? y/n ");
+            System.out.print("로그인 하시겠습니까? y/n ");
             char done = scanner.nextLine().toLowerCase().charAt(0);
             if(done == 'y') {
                 // controller을 통한 logIn() 작업

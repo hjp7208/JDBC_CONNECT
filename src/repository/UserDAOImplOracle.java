@@ -1,0 +1,206 @@
+package repository;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import dbutil.DBUtil;
+import domain.users.UserVO;
+
+public class UserDAOImplOracle implements Users {
+    @Override
+    public int userAdd(UserVO user) {
+        int result = 0; // 결과에 대한 반환 값 처리를 위한 변수
+        // OracleDB에 연동
+        try (Connection conn = DBUtil.getConnection(DBUtil.ORACLE)) {
+
+            String sql = "INSERT INTO users "
+                    + "(id, user_id, user_pw, user_name, user_email, phone1, phone2, age, "
+                    + "address1, address2) values(users_seq.nextval,?,?,?,?,?,?,?,?,?)";
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, user.getUserId());
+            pstmt.setString(2, user.getUserPw());
+            pstmt.setString(3, user.getUserName());
+            pstmt.setString(4, user.getUserEmail());
+            pstmt.setString(5, user.getPhone1());
+            pstmt.setString(6, user.getPhone2());
+            pstmt.setByte(7, user.getAge());
+            pstmt.setString(8, user.getAddress1());
+            pstmt.setString(9, user.getAddress2());
+
+            result = pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("DB작업 실패");
+            System.out.println(e.getMessage());
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<UserVO> userAll() {
+        // slq select 전체
+        List<UserVO> list = new ArrayList<>();
+
+        try (Connection conn = DBUtil.getConnection(DBUtil.ORACLE)) {
+
+            // SQL
+            String sql = "SELECT * FROM users";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                list.add(UserVO.builder()
+                        .id(rs.getLong("id"))
+                        .userId(rs.getString("user_id"))
+                        .userPw(rs.getString("user_pw"))
+                        .userName(rs.getString("user_name"))
+                        .userEmail(rs.getString("user_email"))
+                        .phone1(rs.getString("phone1"))
+                        .phone2(rs.getString("phone2"))
+                        .age(rs.getByte("age"))
+                        .address1(rs.getString("address1"))
+                        .address2(rs.getString("address2"))
+                        .regDate(rs.getTimestamp("reg_date"))
+                        .modDate(rs.getTimestamp("mod_date"))
+                        .build());
+            }
+
+        } catch (SQLException e) {
+            System.out.println("DB 작업 실패!!");
+            System.out.println(e.getMessage());
+        }
+
+        return list;
+    }
+
+    @Override
+    public int userDel(UserVO user) {
+        // sql delete
+        int result = 0;
+        try (Connection conn = DBUtil.getConnection(DBUtil.ORACLE)) {
+            String sql = "DELETE FROM users WHERE id = ?";
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setLong(1, user.getId());
+            result = pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("DB 작업 실패!!");
+            System.out.println(e.getMessage());
+        }
+        return result;
+    }
+
+    @Override
+    public int userMod(UserVO after) {
+        // sql update
+        int result = 0;
+        try (Connection conn = DBUtil.getConnection(DBUtil.ORACLE)) {
+
+            String sql = "UPDATE users SET user_id=?, user_pw=?, user_name=?," +
+                    "user_email=?, phone1=?, phone2=?, age=?, address1=?, address2=?" +
+                    ", mod_date=sysdate WHERE id = ?";
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, after.getUserId());
+            pstmt.setString(2, after.getUserPw());
+            pstmt.setString(3, after.getUserName());
+            pstmt.setString(4, after.getUserEmail());
+            pstmt.setString(5, after.getPhone1());
+            pstmt.setString(6, after.getPhone2());
+            pstmt.setByte(7, after.getAge());
+            pstmt.setString(8, after.getAddress1());
+            pstmt.setString(9, after.getAddress2());
+            pstmt.setLong(10, after.getId());
+
+            result = pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println("DB 동작 에러!!");
+            System.out.println(e.getMessage());
+        }
+
+        return result;
+    }
+
+    @Override
+    public Optional<UserVO> logIn(String userId, String userPw) {
+        // sql select , where userId, userPw
+        // login 처리를 위한 값으로 진행
+        Optional<UserVO> user = null;
+        try (Connection conn = DBUtil.getConnection(DBUtil.ORACLE)) {
+
+            // SQL
+            String sql = "SELECT * FROM users WHERE user_id=? AND user_pw=?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userId);
+            pstmt.setString(2, userPw);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                user = Optional.of(UserVO.builder()
+                            .id(rs.getLong("id"))
+                            .userId(rs.getString("user_Id"))
+                            .userPw(rs.getString("user_pw"))
+                            .userName(rs.getString("user_name"))
+                            .userEmail(rs.getString("user_email"))
+                            .phone1(rs.getString("phone1"))
+                            .phone2(rs.getString("phone2"))
+                            .age(rs.getByte("age"))
+                            .address1(rs.getString("address1"))
+                            .address2(rs.getString("address2"))
+                            .regDate(rs.getTimestamp("reg_date"))
+                            .modDate(rs.getTimestamp("mod_date"))
+                            .build());
+            }
+
+        } catch (SQLException e) {
+            System.out.println("DB 작업 실패!!");
+            System.out.println(e.getMessage());
+        }
+
+        return user;
+    }
+
+    @Override
+    public Optional<UserVO> userSearch(String userEmail) {
+        // sql select, where email
+        Optional<UserVO> result = null;
+        try (Connection conn = DBUtil.getConnection(DBUtil.ORACLE)) {
+
+            // SQL
+            String sql = "SELECT * FROM users WHERE user_email=?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, userEmail);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                result = Optional.of(UserVO.builder()
+                        .id(rs.getLong("id"))
+                        .userId(rs.getString("user_id"))
+                        .userPw(rs.getString("user_pw"))
+                        .userName(rs.getString("user_name"))
+                        .userEmail(rs.getString("user_email"))
+                        .phone1(rs.getString("phone1"))
+                        .phone2(rs.getString("phone2"))
+                        .age(rs.getByte("age"))
+                        .address1(rs.getString("address1"))
+                        .address2(rs.getString("address2"))
+                        .regDate(rs.getTimestamp("reg_date"))
+                        .modDate(rs.getTimestamp("mod_date"))
+                        .build());
+            }
+
+        } catch (SQLException e) {
+            System.out.println("DB 작업 실패!!");
+            System.out.println(e.getMessage());
+        }
+        return result;
+    }
+}
